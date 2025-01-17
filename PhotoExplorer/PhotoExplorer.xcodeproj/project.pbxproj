@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		1479C80D2D3A529F004BE4A0 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1479C80C2D3A529F004BE4A0 /* SnapKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		1479C7E52D3A3B38004BE4A0 /* PhotoExplorer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoExplorer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1479C80D2D3A529F004BE4A0 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = PhotoExplorer;
 			packageProductDependencies = (
+				1479C80C2D3A529F004BE4A0 /* SnapKit */,
 			);
 			productName = PhotoExplorer;
 			productReference = 1479C7E52D3A3B38004BE4A0 /* PhotoExplorer.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = 1479C7DC2D3A3B38004BE4A0;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				1479C80B2D3A529F004BE4A0 /* XCRemoteSwiftPackageReference "SnapKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1479C7E62D3A3B38004BE4A0 /* Products */;
 			projectDirPath = "";
@@ -343,6 +352,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1479C80B2D3A529F004BE4A0 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1479C80C2D3A529F004BE4A0 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1479C80B2D3A529F004BE4A0 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1479C7DD2D3A3B38004BE4A0 /* Project object */;
 }
