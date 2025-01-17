@@ -1,0 +1,9 @@
+# for mac
+*.DS_Store
+
+# for Xcode
+*.xcuserstate
+
+# for Project
+authenticationInfo.plist
+
