@@ -47,6 +47,13 @@ final class PhotoSearchViewController: ConfigurationViewController {
     private let emptyCellIdentifier = EmptyCollectionViewCell.identifier
     private let photoCellIdentifier = PhotoCollectionViewCell.identifier
     
+    let networkManager = SearchNetworkManager.shared
+    var photos: [Photo] = []
+    let totalPage: Int = 1
+    let currentPage: Int = 1
+    var isSearched: Bool = false
+    var currentSectionValue: [Int] = [1, 0, 0]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -54,6 +61,9 @@ final class PhotoSearchViewController: ConfigurationViewController {
     
     override func configureView() {
         navigationItem.title = NavigationTitle.photoSearch.title
+        
+        searchBar.delegate = self
+        
         sortButton.backgroundColor = .white
         sortButton.addTarget(self, action: #selector(sortButtonDidTapped), for: .touchUpInside)
         
@@ -83,9 +93,39 @@ final class PhotoSearchViewController: ConfigurationViewController {
         }
     }
     
+    private func loadSearchedPhoto(_ keyword: String) {
+        networkManager.getSearchPhotos(keyword, page: currentPage) { value, error in
+            if let error {
+                print(error) //  임시
+                return
+            } else if let value {
+                self.currentSectionValue[0] = 0
+                if value.results.count < 1 {
+                    self.currentSectionValue[1] = 1
+                    self.currentSectionValue[2] = 0
+                } else {
+                    self.photos.append(contentsOf: value.results)
+                    self.currentSectionValue[1] = 0
+                    self.currentSectionValue[2] = self.photos.count
+                }
+                self.collectionView.reloadData()
+            }
+        }
+    }
+    
     @objc
     func sortButtonDidTapped(_ sender: UIButton) {
         sender.isSelected.toggle()
+    }
+}
+
+extension PhotoSearchViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let keyword = searchBar.text else {
+            return
+        }
+        loadSearchedPhoto(keyword)
+        view.endEditing(true)
     }
 }
 
@@ -147,17 +187,7 @@ extension PhotoSearchViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let section = Section(section) else {
-            print("Unknown section")
-            return 0
-        }
-        
-        switch section {
-        case .empty(_):
-            return 1
-        case .photos:
-            return 10
-        }
+        return currentSectionValue[section]
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -180,13 +210,9 @@ extension PhotoSearchViewController: UICollectionViewDelegate, UICollectionViewD
                 print("Failed to cast cell")
                 return UICollectionViewCell()
             }
-            let photo = Photo()
+            let photo = photos[indexPath.item]
             cell.configure(with: photo)
             return cell
         }
     }
-}
-
-struct Photo {
-    
 }
