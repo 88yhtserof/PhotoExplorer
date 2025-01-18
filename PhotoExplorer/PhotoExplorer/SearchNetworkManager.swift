@@ -14,8 +14,8 @@ final class SearchNetworkManager: NetworkManager {
     
     private override init() {}
     
-    func getSearchPhotos(_ keyword: String, page: Int, completionHandler: @escaping ((PhotoSearchResponse?, Error?) -> Void)) {
-        guard let url = urlConstructor.constructSearchURL(keyword, page: page).url else {
+    func getSearchPhotos(_ keyword: String, page: Int, orderBy: SearchAPIContructor.OrderBy = .relevant, completionHandler: @escaping ((PhotoSearchResponse?, Error?) -> Void)) {
+        guard let url = urlConstructor.constructSearchURL(keyword, page: page, orderBy: orderBy).url else {
             print("Failed to create url")
             return
         }
@@ -42,7 +42,7 @@ struct SearchAPIContructor {
     
     private let perPageQueryItem = URLQueryItem(name: QueryName.per_page.name, value: String(20))
     
-    func constructSearchURL(_ keyword: String, page: Int, orderBy: OrderBy = .relevant, color: String? = nil) -> URLComponents {
+    func constructSearchURL(_ keyword: String, page: Int, orderBy: OrderBy, color: String? = nil) -> URLComponents {
         var components = URLComponents()
         components.scheme = scheme
         components.host = host

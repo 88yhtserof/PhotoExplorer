@@ -49,10 +49,12 @@ final class PhotoSearchViewController: ConfigurationViewController {
     
     let networkManager = SearchNetworkManager.shared
     var photos: [Photo] = []
-    let totalPage: Int = 1
-    let currentPage: Int = 1
+    var currentPage: Int = 1
     var isSearched: Bool = false
     var currentSectionValue: [Int] = [1, 0, 0]
+    var searchKeyword: String?
+    var orderBy: SearchAPIContructor.OrderBy = .relevant
+    var totalPage: Int?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,11 +66,13 @@ final class PhotoSearchViewController: ConfigurationViewController {
         
         searchBar.delegate = self
         
+        sortButton.isSelected = true
         sortButton.backgroundColor = .white
         sortButton.addTarget(self, action: #selector(sortButtonDidTapped), for: .touchUpInside)
         
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.prefetchDataSource = self
         collectionView.register(EmptyCollectionViewCell.self, forCellWithReuseIdentifier: emptyCellIdentifier)
         collectionView.register(PhotoCollectionViewCell.self, forCellWithReuseIdentifier: photoCellIdentifier)
     }
@@ -93,13 +97,16 @@ final class PhotoSearchViewController: ConfigurationViewController {
         }
     }
     
-    private func loadSearchedPhoto(_ keyword: String) {
-        networkManager.getSearchPhotos(keyword, page: currentPage) { value, error in
+    private func loadSearchedPhoto(_ keyword: String, order: SearchAPIContructor.OrderBy) {
+        networkManager.getSearchPhotos(keyword, page: currentPage, orderBy: order) { value, error in
             if let error {
                 print(error) //  임시
                 return
             } else if let value {
+                self.currentPage += 1
+                self.totalPage = value.total_pages
                 self.currentSectionValue[0] = 0
+                
                 if value.results.count < 1 {
                     self.currentSectionValue[1] = 1
                     self.currentSectionValue[2] = 0
@@ -109,6 +116,7 @@ final class PhotoSearchViewController: ConfigurationViewController {
                     self.currentSectionValue[2] = self.photos.count
                 }
                 self.collectionView.reloadData()
+                self.collectionView.contentOffset = .zero
             }
         }
     }
@@ -116,15 +124,22 @@ final class PhotoSearchViewController: ConfigurationViewController {
     @objc
     func sortButtonDidTapped(_ sender: UIButton) {
         sender.isSelected.toggle()
+        currentPage = 1
+        photos = []
+        let order: SearchAPIContructor.OrderBy = sender.isSelected ? .relevant : .latest
+        loadSearchedPhoto(searchKeyword ?? "", order: order)
     }
 }
 
 extension PhotoSearchViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        guard let keyword = searchBar.text else {
+        guard let text = searchBar.text,
+        let keyword = Search.validateSearchWord(text) else {
             return
         }
-        loadSearchedPhoto(keyword)
+        searchKeyword = keyword
+        let order: SearchAPIContructor.OrderBy = sortButton.isSelected ? .relevant : .latest
+        loadSearchedPhoto(keyword, order: order)
         view.endEditing(true)
     }
 }
@@ -216,6 +231,16 @@ extension PhotoSearchViewController: UICollectionViewDelegate, UICollectionViewD
             let photo = photos[indexPath.item]
             cell.configure(with: photo)
             return cell
+        }
+    }
+}
+
+extension PhotoSearchViewController: UICollectionViewDataSourcePrefetching {
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        for indexPath in indexPaths {
+            if currentPage < (totalPage ?? 1) && (photos.count - 2) == indexPath.item {
+                loadSearchedPhoto(searchKeyword ?? "", order: orderBy)
+            }
         }
     }
 }
