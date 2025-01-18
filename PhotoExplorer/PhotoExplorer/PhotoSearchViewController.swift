@@ -55,6 +55,8 @@ final class PhotoSearchViewController: ConfigurationViewController {
     override func configureView() {
         navigationItem.title = NavigationTitle.photoSearch.title
         sortButton.backgroundColor = .white
+        sortButton.addTarget(self, action: #selector(sortButtonDidTapped), for: .touchUpInside)
+        
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(EmptyCollectionViewCell.self, forCellWithReuseIdentifier: emptyCellIdentifier)
@@ -79,6 +81,11 @@ final class PhotoSearchViewController: ConfigurationViewController {
             make.top.equalTo(sortButton.snp.bottom)
             make.bottom.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
+    }
+    
+    @objc
+    func sortButtonDidTapped(_ sender: UIButton) {
+        sender.isSelected.toggle()
     }
 }
 

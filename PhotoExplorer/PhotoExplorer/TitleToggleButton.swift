@@ -23,6 +23,9 @@ class TitleToggleButton: UIButton {
         config.title = title
         config.image = image
         config.imagePlacement = .leading
+        config.imagePadding = 5
+        config.baseBackgroundColor = .white
+        config.baseForegroundColor = .black
         return config
     }
     
