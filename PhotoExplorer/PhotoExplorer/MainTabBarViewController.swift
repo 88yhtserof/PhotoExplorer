@@ -7,6 +7,16 @@
 
 import UIKit
 
+enum NavigationTitle: String {
+    case photoSearch = "SEARCH PHOTO"
+    case photoDetail
+    case photoTopic
+    
+    var title: String {
+        return rawValue
+    }
+}
+
 class MainTabBarViewController: UITabBarController {
     
     enum TabBarItem: String {

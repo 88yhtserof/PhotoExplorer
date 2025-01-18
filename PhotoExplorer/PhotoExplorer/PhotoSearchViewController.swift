@@ -9,46 +9,9 @@ import UIKit
 
 import SnapKit
 
-class TitleToggleButton: UIButton {
-    
-    lazy var selectedConfiguration = configureSelectedConfiguration(title: selectedTitle)
-    lazy var unselectedConfiguration = configureSelectedConfiguration(title: unselectedTitle)
-    
-    override var isSelected: Bool {
-        didSet {
-            configuration = isSelected ? selectedConfiguration : unselectedConfiguration
-        }
-    }
-    
-    private func configureSelectedConfiguration(title: String) -> UIButton.Configuration {
-        var config = UIButton.Configuration.filled()
-        config.title = title
-        config.image = image
-        config.imagePlacement = .leading
-        return config
-    }
-    
-    let selectedTitle: String
-    let unselectedTitle: String
-    let image: UIImage?
-    
-    init(selectedTitle: String, unselecetedTitle: String, image: String) {
-        self.selectedTitle = selectedTitle
-        self.unselectedTitle = unselecetedTitle
-        self.image = UIImage(systemName: image)
-        super.init(frame: .zero)
-        configuration = selectedConfiguration
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-
 final class PhotoSearchViewController: ConfigurationViewController {
     
     enum EmptyKind: String {
-        case none
         case beforeSearch = "사진을 검색하세요"
         case noSearchResult = "검색 결과가 없습니다"
         
@@ -58,7 +21,7 @@ final class PhotoSearchViewController: ConfigurationViewController {
     }
     
     enum Section: CaseIterable {
-        static var allCases: [PhotoSearchViewController.Section] = [.empty(.none), .photos]
+        static var allCases: [PhotoSearchViewController.Section] = [.empty(.beforeSearch), .empty(.noSearchResult), .photos]
         
         case empty(EmptyKind)
         case photos
@@ -66,8 +29,10 @@ final class PhotoSearchViewController: ConfigurationViewController {
         init?(_ section: Int) {
             switch section {
             case 0:
-                self = .empty(.none)
+                self = .empty(.beforeSearch)
             case 1:
+                self = .empty(.noSearchResult)
+            case 2:
                 self = .photos
             default:
                 return nil
@@ -215,99 +180,6 @@ extension PhotoSearchViewController: UICollectionViewDelegate, UICollectionViewD
     }
 }
 
-final class PhotoCollectionViewCell: ConfigurationCollectionViewCell, ListConfigurable {
-    
-    private var photoImageView = UIImageView()
-    
-    static let identifier = String(describing: PhotoCollectionViewCell.self)
-    
-    
-    override func configureContentView() {
-        photoImageView.backgroundColor = .systemGray6
-    }
-    
-    override func configureHierarchy() {
-        contentView.addSubviews(photoImageView)
-    }
-    
-    override func configureConstraints() {
-        let width = contentView.frame.width
-        
-        photoImageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-    }
-    
-    func configure(with value: Photo) {
-        
-    }
-}
-
 struct Photo {
     
-}
-
-protocol ListConfigurable {
-    associatedtype CellValue
-    
-    func configure(with value: CellValue)
-}
-
-class EmptyCollectionViewCell: ConfigurationCollectionViewCell, ListConfigurable {
-    private let descriptionLabel = UILabel()
-    
-    static let identifier = String(describing: EmptyCollectionViewCell.self)
-    
-    override func configureContentView() {
-        descriptionLabel.numberOfLines = 1
-        descriptionLabel.font = .systemFont(ofSize: 13, weight: .semibold)
-    }
-    
-    override func configureHierarchy() {
-        contentView.addSubviews(descriptionLabel)
-    }
-    
-    override func configureConstraints() {
-        descriptionLabel.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview()
-            make.centerY.equalToSuperview()
-        }
-    }
-    
-    func configure(with value: String) {
-        descriptionLabel.text = value
-    }
-}
-
-/// A collection view cell that provides configuration methods and calls those methods at an appropriate times.
-class ConfigurationCollectionViewCell: UICollectionViewCell {
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        configureContentView()
-        configureHierarchy()
-        configureConstraints()
-    }
-    
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    func configureContentView(){}
-    
-    func configureHierarchy() {}
-    
-    func configureConstraints() {}
-}
-
-enum NavigationTitle: String {
-    case photoSearch
-    case photoDetail
-    case photoTopic
-    
-    var title: String {
-        return rawValue
-    }
 }
