@@ -55,6 +55,7 @@ final class PhotoSearchViewController: ConfigurationViewController {
     var searchKeyword: String?
     var orderBy: SearchAPIContructor.OrderBy = .relevant
     var totalPage: Int?
+    var isInitial: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -106,6 +107,10 @@ final class PhotoSearchViewController: ConfigurationViewController {
                 self.currentPage += 1
                 self.totalPage = value.total_pages
                 self.currentSectionValue[0] = 0
+                if self.isInitial {
+                    self.currentPage = 1
+                    self.photos = []
+                }
                 
                 if value.results.count < 1 {
                     self.currentSectionValue[1] = 1
@@ -116,17 +121,16 @@ final class PhotoSearchViewController: ConfigurationViewController {
                     self.currentSectionValue[2] = self.photos.count
                 }
                 self.collectionView.reloadData()
-                self.collectionView.contentOffset = .zero
             }
         }
     }
     
     @objc
     func sortButtonDidTapped(_ sender: UIButton) {
+        self.collectionView.contentOffset = .zero
         sender.isSelected.toggle()
-        currentPage = 1
-        photos = []
         let order: SearchAPIContructor.OrderBy = sender.isSelected ? .relevant : .latest
+        isInitial = true
         loadSearchedPhoto(searchKeyword ?? "", order: order)
     }
 }
@@ -137,6 +141,7 @@ extension PhotoSearchViewController: UISearchBarDelegate {
         let keyword = Search.validateSearchWord(text) else {
             return
         }
+        isInitial = true
         searchKeyword = keyword
         let order: SearchAPIContructor.OrderBy = sortButton.isSelected ? .relevant : .latest
         loadSearchedPhoto(keyword, order: order)
@@ -237,6 +242,7 @@ extension PhotoSearchViewController: UICollectionViewDelegate, UICollectionViewD
 
 extension PhotoSearchViewController: UICollectionViewDataSourcePrefetching {
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        isInitial = false
         for indexPath in indexPaths {
             if currentPage < (totalPage ?? 1) && (photos.count - 2) == indexPath.item {
                 loadSearchedPhoto(searchKeyword ?? "", order: orderBy)
