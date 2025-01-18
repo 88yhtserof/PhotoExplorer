@@ -238,6 +238,11 @@ extension PhotoSearchViewController: UICollectionViewDelegate, UICollectionViewD
             return cell
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let photoDetailVC = PhotoDetailViewController()
+        self.navigationController?.pushViewController(photoDetailVC, animated: true)
+    }
 }
 
 extension PhotoSearchViewController: UICollectionViewDataSourcePrefetching {
