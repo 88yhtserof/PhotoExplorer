@@ -40,8 +40,8 @@ final class PhotoDetailViewController: ConfigurationViewController {
     
     override func configureView() {
         
-        let url = URL(string: photo.user.profile_image.small)
-        userInfoView.imageURL = url
+        let userInfoImageURL = URL(string: photo.user.profile_image.small)
+        userInfoView.imageURL = userInfoImageURL
         userInfoView.name = photo.user.name
         let createdAtString = DateFormatterManager.shared.String(from: photo.created_at, to: .createdAt)
         userInfoView.createdAt = String(format: "%@ 게시됨", createdAtString)
@@ -50,10 +50,20 @@ final class PhotoDetailViewController: ConfigurationViewController {
         
         infoBlockView.contentView = infoStackView
         
-        imageView.image = UIImage(systemName: "photo")
+        if let imageURL = URL(string: photo.urls.raw) {
+            let width = view.frame.width
+            let imageHeight = photo.height * width / photo.width
+            let size = CGSize(width: width, height: imageHeight)
+            imageView.kf.setImage(with: imageURL,
+                                  options: [.processor(DownsamplingImageProcessor(size: size))])
+            
+            imageView.snp.makeConstraints { make in
+                make.height.equalTo(imageHeight)
+            }
+        }
         imageView.backgroundColor = .gray
         imageView.tintColor = .white
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
         
         sizeInfoView.content = String(30983872)
         viewsInfoView.content = String(134567)
@@ -67,7 +77,8 @@ final class PhotoDetailViewController: ConfigurationViewController {
     }
     
     override func configureConstraints() {
-        let inset: CGFloat = 10
+        let verticalInset: CGFloat = 20
+        let horizontalInset: CGFloat = 10
         let spacing: CGFloat = 15
         
         scrollView.snp.makeConstraints { make in
@@ -80,18 +91,19 @@ final class PhotoDetailViewController: ConfigurationViewController {
         }
         
         userInfoView.snp.makeConstraints { make in
-            make.top.horizontalEdges.equalToSuperview().inset(inset)
+            make.top.equalToSuperview().inset(verticalInset)
+            make.horizontalEdges.equalToSuperview().inset(horizontalInset)
         }
         
         imageView.snp.makeConstraints { make in
             make.top.equalTo(userInfoView.snp.bottom).offset(spacing)
-            make.horizontalEdges.equalToSuperview().inset(inset)
-            make.height.equalTo(200) // 네트워크 통신 시 전달 받은 이미지 크기 적용
+            make.horizontalEdges.equalToSuperview().inset(horizontalInset)
         }
         
         infoBlockView.snp.makeConstraints { make in
             make.top.equalTo(imageView.snp.bottom).offset(spacing)
-            make.bottom.horizontalEdges.equalToSuperview().inset(inset)
+            make.bottom.equalToSuperview().inset(verticalInset)
+            make.horizontalEdges.equalToSuperview().inset(horizontalInset)
         }
     }
 }

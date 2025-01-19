@@ -15,8 +15,8 @@ struct PhotoSearchResponse: Decodable {
 
 struct Photo: Decodable {
     let id: String
-    let width: Int
-    let height: Int
+    let width: CGFloat
+    let height: CGFloat
     let color: String
     let likes: Int
     let urls: PhotoURLs
