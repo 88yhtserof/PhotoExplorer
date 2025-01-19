@@ -163,13 +163,14 @@ extension PhotoSearchViewController: UICollectionViewDelegateFlowLayout {
             let height: CGFloat = collectionView.frame.height
             return CGSize(width: width, height: height)
         case .photos:
-            // 이미지 배치 진행 중
-            let photo = photos[indexPath.item]
             let spacing: CGFloat = 3
             let inset: CGFloat = 5
             let width = UIScreen.main.bounds.width - (spacing + inset * 2)
-            let height = (CGFloat(photo.height) * width) / CGFloat(photo.width)
-            return CGSize(width: width / 2, height: height)
+            return CGSize(width: width / 2, height: width / 2)
+            // 이미지 배치 진행 중
+//            let photo = photos[indexPath.item]
+//            let height = (CGFloat(photo.height) * width) / CGFloat(photo.width)
+//            return CGSize(width: width / 2, height: height)
         }
         
     }
@@ -200,6 +201,10 @@ extension PhotoSearchViewController: UICollectionViewDelegateFlowLayout {
         case .photos:
             return 3
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 0, left: 5, bottom: 5, right: 5)
     }
 }
 
