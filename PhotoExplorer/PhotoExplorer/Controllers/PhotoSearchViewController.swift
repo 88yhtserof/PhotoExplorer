@@ -251,6 +251,14 @@ extension PhotoSearchViewController: UICollectionViewDelegate, UICollectionViewD
     }
 }
 
+extension PhotoSearchViewController: UISearchControllerDelegate {
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        if currentPage < (totalPage ?? 1) && scrollView.contentOffset.y >= (scrollView.contentSize.height - collectionView.frame.height) {
+            loadSearchedPhoto(searchKeyword ?? "", order: orderBy)
+        }
+    }
+}
+
 extension PhotoSearchViewController: UICollectionViewDataSourcePrefetching {
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         isInitial = false
