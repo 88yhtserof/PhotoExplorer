@@ -14,7 +14,7 @@ class StatisticsNetworkManager: NetworkManager {
     private override init() {}
     
     func getStatistics(for photoID: String, completion: @escaping (StatisticsResponse?, Error?) -> Void) {
-        let urlComponents = StatisticsAPICondtructor().constructStatisticsURL(for: photoID)
+        let urlComponents = StatisticsAPIConstructor().constructStatisticsURL(for: photoID)
         
         AF.request(urlComponents, method: .get, headers: [authorizationHeader])
             .responseDecodable(of: StatisticsResponse.self) { response in
@@ -30,7 +30,7 @@ class StatisticsNetworkManager: NetworkManager {
     
 }
 
-struct StatisticsAPICondtructor {
+struct StatisticsAPIConstructor {
     let scheme = NetworkAPIConstructor.scheme
     let host = NetworkAPIConstructor.host
     private let pathFormat = "/photos/%@/statistics"
