@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 
 final class UserInfoView: ConfigurationView {
     
@@ -16,9 +17,9 @@ final class UserInfoView: ConfigurationView {
     private lazy var verticalStackView = UIStackView(arrangedSubviews: [profileNameLabel, createdAtLabel])
     private lazy var horizontalStackView = UIStackView(arrangedSubviews: [profileImageView, verticalStackView])
     
-    var image: UIImage? {
+    var imageURL: URL? {
         didSet{
-            profileImageView.image = image
+            profileImageView.kf.setImage(with: imageURL)
         }
     }
     

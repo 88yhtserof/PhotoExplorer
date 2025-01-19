@@ -240,7 +240,8 @@ extension PhotoSearchViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let photoDetailVC = PhotoDetailViewController()
+        let photo = photos[indexPath.item]
+        let photoDetailVC = PhotoDetailViewController(photo: photo)
         self.navigationController?.pushViewController(photoDetailVC, animated: true)
     }
 }

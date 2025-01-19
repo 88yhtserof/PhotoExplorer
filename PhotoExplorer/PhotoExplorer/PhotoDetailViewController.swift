@@ -7,6 +7,8 @@
 
 import UIKit
 import SnapKit
+import Alamofire
+import Kingfisher
 
 final class PhotoDetailViewController: ConfigurationViewController {
     
@@ -20,6 +22,17 @@ final class PhotoDetailViewController: ConfigurationViewController {
     let downloadsInfoView = InfoView(title: "다운로드")
     lazy var infoStackView = UIStackView(arrangedSubviews: [sizeInfoView, viewsInfoView, downloadsInfoView])
     
+    private var photo: Photo
+    
+    init(photo: Photo) {
+        self.photo = photo
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -27,9 +40,11 @@ final class PhotoDetailViewController: ConfigurationViewController {
     
     override func configureView() {
         
-        userInfoView.image = UIImage(systemName: "photo")
-        userInfoView.name = "Brayden Prato"
-        userInfoView.createdAt = "2024년 7월 3일 게시됨"
+        let url = URL(string: photo.user.profile_image.small)
+        userInfoView.imageURL = url
+        userInfoView.name = photo.user.name
+        let createdAtString = DateFormatterManager.shared.String(from: photo.created_at, to: .createdAt)
+        userInfoView.createdAt = String(format: "%@ 게시됨", createdAtString)
         infoStackView.axis = .vertical
         infoStackView.spacing = 8
         
@@ -80,3 +95,5 @@ final class PhotoDetailViewController: ConfigurationViewController {
         }
     }
 }
+
+
