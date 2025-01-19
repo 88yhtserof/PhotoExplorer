@@ -20,7 +20,7 @@
 		1479C7F72D3A3B39004BE4A0 /* Exceptions for "PhotoExplorer" folder in "PhotoExplorer" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Resources/Info.plist,
 			);
 			target = 1479C7E42D3A3B38004BE4A0 /* PhotoExplorer */;
 		};
@@ -164,7 +164,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ZQV4ZDQNW5;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = PhotoExplorer/Info.plist;
+				INFOPLIST_FILE = PhotoExplorer/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -196,7 +196,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ZQV4ZDQNW5;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = PhotoExplorer/Info.plist;
+				INFOPLIST_FILE = PhotoExplorer/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
