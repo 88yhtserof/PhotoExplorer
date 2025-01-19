@@ -22,7 +22,10 @@ final class PhotoDetailViewController: ConfigurationViewController {
     let downloadsInfoView = InfoView(title: "다운로드")
     lazy var infoStackView = UIStackView(arrangedSubviews: [sizeInfoView, viewsInfoView, downloadsInfoView])
     
+    private let statisticsManager = StatisticsNetworkManager.shared
+    
     private var photo: Photo
+    private var statistics: StatisticsResponse?
     
     init(photo: Photo) {
         self.photo = photo
@@ -36,6 +39,16 @@ final class PhotoDetailViewController: ConfigurationViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        loadPhotoStatistics(photo.id)
+    }
+    
+    private func loadPhotoStatistics(_ photoID: String) {
+        statisticsManager.getStatistics(for: photoID) { [self] value, _ in
+            guard let value else { return }
+            self.statistics = value
+            self.viewsInfoView.content = value.views.total.decimal()
+            self.downloadsInfoView.content = value.downloads.total.decimal()
+        }
     }
     
     override func configureView() {
@@ -65,9 +78,7 @@ final class PhotoDetailViewController: ConfigurationViewController {
         imageView.tintColor = .white
         imageView.contentMode = .scaleAspectFill
         
-        sizeInfoView.content = String(30983872)
-        viewsInfoView.content = String(134567)
-        downloadsInfoView.content = String(122534)
+        sizeInfoView.content = String(format: "%.f x %.f", photo.height, photo.width)
     }
     
     override func configureHierarchy() {
