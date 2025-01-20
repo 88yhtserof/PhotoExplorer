@@ -10,7 +10,7 @@ import UIKit
 enum NavigationTitle: String {
     case photoSearch = "SEARCH PHOTO"
     case photoDetail
-    case photoTopic
+    case photoTopic = "OUR TOPIC"
     
     var title: String {
         return rawValue
