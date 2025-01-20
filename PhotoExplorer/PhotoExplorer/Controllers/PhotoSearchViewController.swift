@@ -9,6 +9,7 @@ import UIKit
 
 import SnapKit
 
+
 final class PhotoSearchViewController: ConfigurationViewController {
     
     enum EmptyKind: String {
@@ -40,12 +41,11 @@ final class PhotoSearchViewController: ConfigurationViewController {
         }
     }
     
-    let searchBar = UISearchBar()
-    let sortButton = TitleToggleButton(selectedTitle: "관련순", unselecetedTitle: "최신순", image: "line.3.horizontal.circle")
-    lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    lazy var mainView = PhotoSearchView(delegate: self)
     
-    private let emptyCellIdentifier = EmptyCollectionViewCell.identifier
-    private let photoCellIdentifier = PhotoCollectionViewCell.identifier
+    override func loadView() {
+        view = mainView
+    }
     
     let networkManager = SearchNetworkManager.shared
     var photos: [Photo] = []
@@ -64,38 +64,8 @@ final class PhotoSearchViewController: ConfigurationViewController {
     
     override func configureView() {
         navigationItem.title = NavigationTitle.photoSearch.title
+        mainView.sortButton.addTarget(self, action: #selector(sortButtonDidTapped), for: .touchUpInside)
         
-        searchBar.delegate = self
-        
-        sortButton.isSelected = true
-        sortButton.backgroundColor = .white
-        sortButton.addTarget(self, action: #selector(sortButtonDidTapped), for: .touchUpInside)
-        
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.prefetchDataSource = self
-        collectionView.register(EmptyCollectionViewCell.self, forCellWithReuseIdentifier: emptyCellIdentifier)
-        collectionView.register(PhotoCollectionViewCell.self, forCellWithReuseIdentifier: photoCellIdentifier)
-    }
-    
-    override func configureHierarchy() {
-        view.addSubviews(searchBar, sortButton, collectionView)
-    }
-    
-    override func configureConstraints() {
-        searchBar.snp.makeConstraints { make in
-            make.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-        }
-        
-        sortButton.snp.makeConstraints { make in
-            make.top.equalTo(searchBar.snp.bottom)
-            make.trailing.equalToSuperview().inset(4)
-        }
-         
-        collectionView.snp.makeConstraints { make in
-            make.top.equalTo(sortButton.snp.bottom)
-            make.bottom.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-        }
     }
     
     private func loadSearchedPhoto(_ keyword: String, order: SearchAPIContructor.OrderBy) {
@@ -120,14 +90,14 @@ final class PhotoSearchViewController: ConfigurationViewController {
                     self.currentSectionValue[1] = 0
                     self.currentSectionValue[2] = self.photos.count
                 }
-                self.collectionView.reloadData()
+                self.mainView.collectionView.reloadData()
             }
         }
     }
     
     @objc
     func sortButtonDidTapped(_ sender: UIButton) {
-        self.collectionView.contentOffset = .zero
+        mainView.collectionView.contentOffset = .zero
         sender.isSelected.toggle()
         let order: SearchAPIContructor.OrderBy = sender.isSelected ? .relevant : .latest
         isInitial = true
@@ -135,6 +105,7 @@ final class PhotoSearchViewController: ConfigurationViewController {
     }
 }
 
+//MARK: - SearchBar Delegate
 extension PhotoSearchViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text,
@@ -143,12 +114,13 @@ extension PhotoSearchViewController: UISearchBarDelegate {
         }
         isInitial = true
         searchKeyword = keyword
-        let order: SearchAPIContructor.OrderBy = sortButton.isSelected ? .relevant : .latest
+        let order: SearchAPIContructor.OrderBy = mainView.sortButton.isSelected ? .relevant : .latest
         loadSearchedPhoto(keyword, order: order)
         view.endEditing(true)
     }
 }
 
+//MARK: - CollectionView Delegate FlowLayout
 extension PhotoSearchViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -167,10 +139,6 @@ extension PhotoSearchViewController: UICollectionViewDelegateFlowLayout {
             let inset: CGFloat = 5
             let width = UIScreen.main.bounds.width - (spacing + inset * 2)
             return CGSize(width: width / 2, height: width / 2)
-            // 이미지 배치 진행 중
-//            let photo = photos[indexPath.item]
-//            let height = (CGFloat(photo.height) * width) / CGFloat(photo.width)
-//            return CGSize(width: width / 2, height: height)
         }
         
     }
@@ -208,6 +176,7 @@ extension PhotoSearchViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
+//MARK: - CollectionView Delegate
 extension PhotoSearchViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -226,7 +195,7 @@ extension PhotoSearchViewController: UICollectionViewDelegate, UICollectionViewD
         
         switch section {
         case .empty(let emptyKind):
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: emptyCellIdentifier, for: indexPath) as? EmptyCollectionViewCell else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmptyCollectionViewCell.identifier, for: indexPath) as? EmptyCollectionViewCell else {
                 print("Failed to cast cell")
                 return UICollectionViewCell()
             }
@@ -234,7 +203,7 @@ extension PhotoSearchViewController: UICollectionViewDelegate, UICollectionViewD
             return cell
             
         case .photos:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: photoCellIdentifier, for: indexPath) as? PhotoCollectionViewCell else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoCollectionViewCell.identifier, for: indexPath) as? PhotoCollectionViewCell else {
                 print("Failed to cast cell")
                 return UICollectionViewCell()
             }
@@ -245,20 +214,23 @@ extension PhotoSearchViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard indexPath.section == 2 else { return }
         let photo = photos[indexPath.item]
         let photoDetailVC = PhotoDetailViewController(photo: photo)
         self.navigationController?.pushViewController(photoDetailVC, animated: true)
     }
 }
 
+//MARK: - SearchController Delegate
 extension PhotoSearchViewController: UISearchControllerDelegate {
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        if currentPage < (totalPage ?? 1) && scrollView.contentOffset.y >= (scrollView.contentSize.height - collectionView.frame.height) {
+        if currentPage < (totalPage ?? 1) && scrollView.contentOffset.y >= (scrollView.contentSize.height - mainView.collectionView.frame.height) {
             loadSearchedPhoto(searchKeyword ?? "", order: orderBy)
         }
     }
 }
 
+//MARK: - CollectionView PreFetching
 extension PhotoSearchViewController: UICollectionViewDataSourcePrefetching {
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         isInitial = false
