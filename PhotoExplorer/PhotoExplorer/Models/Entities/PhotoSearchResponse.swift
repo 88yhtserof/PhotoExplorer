@@ -13,6 +13,8 @@ struct PhotoSearchResponse: Decodable {
     let results: [Photo]
 }
 
+typealias PhotoResponse = [Photo]
+
 struct Photo: Decodable {
     let id: String
     let width: CGFloat
