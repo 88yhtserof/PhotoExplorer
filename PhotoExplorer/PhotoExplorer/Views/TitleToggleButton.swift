@@ -9,7 +9,11 @@ import UIKit
 
 class TitleToggleButton: UIButton {
     
-    lazy var selectedConfiguration = configureSelectedConfiguration(title: selectedTitle)
+    lazy var selectedConfiguration = configureSelectedConfiguration(title: selectedTitle) {
+        didSet {
+            self.configuration = selectedConfiguration
+        }
+    }
     lazy var unselectedConfiguration = configureSelectedConfiguration(title: unselectedTitle)
     
     override var isSelected: Bool {
@@ -26,19 +30,55 @@ class TitleToggleButton: UIButton {
         config.imagePadding = 5
         config.baseBackgroundColor = .white
         config.baseForegroundColor = .black
+        config.cornerStyle = .capsule
         return config
     }
     
-    let selectedTitle: String
-    let unselectedTitle: String
-    let image: UIImage?
+    var selectedTitle: String {
+        didSet {
+            selectedConfiguration.title = selectedTitle
+        }
+    }
+    var unselectedTitle: String {
+        didSet {
+            unselectedConfiguration.title = unselectedTitle
+        }
+    }
+    var image: UIImage? {
+        didSet {
+            selectedConfiguration.image = image
+            unselectedConfiguration.image = image
+        }
+    }
+    var imageColor: UIColor? {
+        didSet {
+            selectedConfiguration.imageColorTransformer = UIConfigurationColorTransformer{ _ in self.imageColor ?? .black }
+            unselectedConfiguration.imageColorTransformer = UIConfigurationColorTransformer{ _ in self.imageColor?.withAlphaComponent(0.3) ?? .black }
+        }
+    }
     
-    init(selectedTitle: String, unselecetedTitle: String, image: String) {
+    override var backgroundColor: UIColor? {
+        set {
+            selectedConfiguration.baseBackgroundColor = newValue
+            unselectedConfiguration.baseBackgroundColor = newValue
+        }
+        get {
+            return self.backgroundColor
+        }
+    }
+    
+    init(selectedTitle: String, unselecetedTitle: String? = nil, image: String? = nil) {
         self.selectedTitle = selectedTitle
-        self.unselectedTitle = unselecetedTitle
-        self.image = UIImage(systemName: image)
+        self.unselectedTitle = unselecetedTitle ?? selectedTitle
+        if let image {
+            self.image = UIImage(systemName: image)
+        }
         super.init(frame: .zero)
         configuration = selectedConfiguration
+    }
+    
+    convenience init() {
+        self.init(selectedTitle: "")
     }
     
     required init?(coder: NSCoder) {
