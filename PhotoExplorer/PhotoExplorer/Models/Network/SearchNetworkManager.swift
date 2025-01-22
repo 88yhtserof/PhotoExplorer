@@ -14,7 +14,7 @@ final class SearchNetworkManager: NetworkManager {
     
     private override init() {}
     
-    func getSearchPhotos(_ keyword: String, page: Int, orderBy: SearchAPIContructor.OrderBy = .relevant, color: String? = nil, completionHandler: @escaping ((PhotoSearchResponse?, Error?) -> Void)) {
+    func getSearchPhotos(_ keyword: String, page: Int, orderBy: OrderBy = .relevant, color: String? = nil, completionHandler: @escaping ((PhotoSearchResponse?, Error?) -> Void)) {
         guard let url = urlConstructor.constructSearchURL(keyword, page: page, orderBy: orderBy, color: color).url else {
             print("Failed to create url")
             return
@@ -34,7 +34,10 @@ final class SearchNetworkManager: NetworkManager {
             }
     }
     
-    func callRequest<T: Decodable>(api: UnsplashRequest, completionHandler: @escaping ((T) -> Void), failureHandler: @escaping ((Error) -> Void)) {
+    func callRequest<T: Decodable>(api: UnsplashRequest,
+                                   type: T.Type,
+                                   completionHandler: @escaping ((T) -> Void),
+                                   failureHandler: @escaping ((Error) -> Void)) {
         guard let url = api.endpoint else {
             print("Failed to create url")
             return
@@ -80,25 +83,25 @@ struct SearchAPIContructor {
         return components
     }
     
-    enum OrderBy: String {
-        case relevant
-        case latest
-        
-        var name: String {
-            return rawValue
-        }
-    }
+}
+
+enum OrderBy: String {
+    case relevant
+    case latest
     
-    enum QueryName: String {
-        case query
-        case page
-        case per_page
-        case order_by
-        case color
-        
-        var name: String {
-            return rawValue
-        }
+    var name: String {
+        return rawValue
     }
+}
+
+enum QueryName: String {
+    case query
+    case page
+    case per_page
+    case order_by
+    case color
     
+    var name: String {
+        return rawValue
+    }
 }
