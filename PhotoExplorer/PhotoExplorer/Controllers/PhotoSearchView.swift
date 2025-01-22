@@ -13,7 +13,7 @@ final class PhotoSearchView: ConfigurationView {
     let searchBar = UISearchBar()
     let colorFilterButtonStackView = UIStackView()
     let scrollView = ScrollView(.hotizontal)
-    let sortButton = TitleToggleButton(selectedTitle: "관련순", unselecetedTitle: "최신순", image: "line.3.horizontal.circle")
+    let sortButton = TitleToggleButton(selectedTitle: "최신순", unselecetedTitle: "관련순", image: "line.3.horizontal.circle")
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
     weak var delegate: PhotoSearchViewController?
@@ -29,7 +29,7 @@ final class PhotoSearchView: ConfigurationView {
         
         ColorFilter.Color.allCases
             .forEach { color in
-                let colorFilterButton = TitleToggleButton(selectedTitle: color.title_kr)
+                let colorFilterButton = colorFillterToggleButton(selectedTitle: color.title_kr)
                 colorFilterButton.tag = color.rawValue
                 colorFilterButton.imageColor = color.color
                 colorFilterButton.image = UIImage(systemName: "circle.fill")

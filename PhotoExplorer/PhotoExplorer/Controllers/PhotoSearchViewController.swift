@@ -56,6 +56,7 @@ final class PhotoSearchViewController: ConfigurationViewController {
     var orderBy: SearchAPIContructor.OrderBy = .relevant
     var totalPage: Int?
     var isInitial: Bool = false
+    var color: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -103,22 +104,27 @@ final class PhotoSearchViewController: ConfigurationViewController {
     func sortButtonDidTapped(_ sender: UIButton) {
         guard !photos.isEmpty else { return }
         mainView.collectionView.contentOffset = .zero
-        sender.isSelected.toggle()
         let order: SearchAPIContructor.OrderBy = sender.isSelected ? .relevant : .latest
         isInitial = true
-        loadSearchedPhoto(searchKeyword ?? "", order: order)
+        loadSearchedPhoto(searchKeyword ?? "", order: order, color: color)
     }
     
     @objc
     private func colorFilterButtonDidTapped(_ sender: UIButton) {
-        print("왜 스크롤이 상단에 있을 때 왜 업데이트가 안 될까")
+        self.color = ColorFilter.Color(rawValue: sender.tag)?.title
+        mainView.colorFilterButtonStackView.arrangedSubviews
+            .compactMap{ $0 as? UIButton }
+            .filter{ $0 != sender && $0.isSelected == true }
+            .forEach{
+                $0.isSelected = false
+            }
+        
         guard !photos.isEmpty,
               let searchKeyword,
-              let color = ColorFilter.Color(rawValue: sender.tag) else { return }
+              let color else { return }
+        
         isInitial = true
-        loadSearchedPhoto(searchKeyword, order: orderBy, color: color.title)
-        print(photos.count, color.title)
-        print(#function)
+        loadSearchedPhoto(searchKeyword, order: orderBy, color: color)
     }
 }
 
@@ -132,7 +138,7 @@ extension PhotoSearchViewController: UISearchBarDelegate {
         isInitial = true
         searchKeyword = keyword
         let order: SearchAPIContructor.OrderBy = mainView.sortButton.isSelected ? .relevant : .latest
-        loadSearchedPhoto(keyword, order: order)
+        loadSearchedPhoto(keyword, order: order, color: self.color)
         view.endEditing(true)
     }
 }

@@ -53,7 +53,7 @@ class TitleToggleButton: UIButton {
     var imageColor: UIColor? {
         didSet {
             selectedConfiguration.imageColorTransformer = UIConfigurationColorTransformer{ _ in self.imageColor ?? .black }
-            unselectedConfiguration.imageColorTransformer = UIConfigurationColorTransformer{ _ in self.imageColor?.withAlphaComponent(0.3) ?? .black }
+            unselectedConfiguration.imageColorTransformer = UIConfigurationColorTransformer{ _ in self.imageColor ?? .black }
         }
     }
     
@@ -84,4 +84,12 @@ class TitleToggleButton: UIButton {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        isSelected.toggle()
+    }
 }
+
+
+
