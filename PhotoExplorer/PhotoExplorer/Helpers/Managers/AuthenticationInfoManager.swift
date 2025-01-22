@@ -10,18 +10,28 @@ import Foundation
 enum AuthenticationInfoManager {
     case unsplach
     
-    private static let dictionary: NSDictionary? = {
+    private var resourceKey: String {
+        switch self {
+        case .unsplach:
+            "Unsplash-client-id"
+        }
+    }
+}
+
+extension AuthenticationInfoManager {
+    
+    private static var dictionary: NSDictionary? {
         guard let url = Bundle.main.url(forResource: "authenticationInfo", withExtension: "plist"),
               let dictionary = NSDictionary(contentsOf: url) else {
             print("Failed to find resource")
             return nil
         }
         return dictionary
-    }()
+    }
     
     var clientID: String? {
         guard let dictionary = AuthenticationInfoManager.dictionary,
-              let clientID = dictionary["Unsplash-client-id"] as? String else {
+              let clientID = dictionary[self.resourceKey] as? String else {
             print("Failed to case resource")
             return nil
         }

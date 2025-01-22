@@ -56,8 +56,8 @@ class PhotoTopicViewController: ConfigurationViewController {
             group.leave()
         }
         
-        group.notify(queue: .main) {[weak self] in
-            self?.mainView.collectionView.reloadData()
+        group.notify(queue: .main) {[self] in
+            self.mainView.collectionView.reloadData()
         }
     }
     
