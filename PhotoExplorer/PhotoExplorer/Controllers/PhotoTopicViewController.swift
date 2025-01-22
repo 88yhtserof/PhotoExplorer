@@ -62,7 +62,9 @@ class PhotoTopicViewController: ConfigurationViewController {
     }
     
     private func loadTopicPhotos(_ topic: Section, completion: @escaping () -> Void) {
-        networkManager.callRequest(api: .topic(topic.query),
+        let topicRequest = TopicRequest(topicID: topic.query)
+        
+        networkManager.callRequest(api: .topic(topicRequest),
                                    type: PhotoResponse.self) { value in
             switch topic {
             case .goldenHour:
@@ -77,7 +79,7 @@ class PhotoTopicViewController: ConfigurationViewController {
             }
             completion()
         } failureHandler: { error in
-            print("Error:", error)
+            self.showOKAlert(title: "네트워크 오류", message: error.description_en)
         }
 
     }

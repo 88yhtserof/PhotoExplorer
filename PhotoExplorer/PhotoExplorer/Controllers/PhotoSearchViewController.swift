@@ -89,7 +89,7 @@ final class PhotoSearchViewController: ConfigurationViewController {
                          type: PhotoSearchResponse.self) { photo in
             self.configureSectionData(photo)
         } failureHandler: { error in
-            print("ERROR:", error)
+            self.showOKAlert(title: "네트워크 오류", message: error.description_en)
         }
 
     }

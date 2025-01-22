@@ -11,7 +11,7 @@ import Alamofire
 enum UnsplashRequest {
     case search(PhotoSearchRequest)
     case statistics(photoID: String)
-    case topic(String)
+    case topic(TopicRequest)
     
     static let authorizationValue = AuthenticationInfoManager.unsplach.clientID
     
@@ -26,8 +26,8 @@ enum UnsplashRequest {
             path = "search/photos"
         case .statistics(let photoID):
             path = "/photos/\(photoID)/statistics"
-        case .topic(let topicID):
-            path = "/topics/\(topicID)/photos"
+        case .topic(let topicRequest):
+            path = "/topics/\(topicRequest.topicID)/photos"
         }
         return URL(string: baseURL + path)
     }
@@ -48,10 +48,10 @@ enum UnsplashRequest {
         switch self {
         case .search(let query):
             return query.parameters
-        case .statistics(let photoID):
+        case .statistics(_):
             return [:]
-        case .topic(let string):
-            return [:]
+        case .topic(let params):
+            return params.parameters
         }
     }
 }

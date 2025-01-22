@@ -49,7 +49,7 @@ final class PhotoDetailViewController: ConfigurationViewController {
             self.viewsInfoView.content = value.views.total.decimal()
             self.downloadsInfoView.content = value.downloads.total.decimal()
         } failureHandler: { error in
-            print("Error:", error)
+            self.showOKAlert(title: "네트워크 오류", message: error.description_en)
         }
 
     }
