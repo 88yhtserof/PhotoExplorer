@@ -40,10 +40,11 @@ class ScrollView: UIScrollView {
             switch scrollDirection {
             case .hotizontal:
                 make.height.equalToSuperview()
+                make.horizontalEdges.equalToSuperview()
             case .vertical:
                 make.width.equalToSuperview()
+                make.verticalEdges.equalToSuperview()
             }
-            make.verticalEdges.equalToSuperview()
         }
     }
 }

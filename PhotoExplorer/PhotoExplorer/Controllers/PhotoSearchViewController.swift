@@ -65,11 +65,15 @@ final class PhotoSearchViewController: ConfigurationViewController {
     override func configureView() {
         navigationItem.title = NavigationTitle.photoSearch.title
         mainView.sortButton.addTarget(self, action: #selector(sortButtonDidTapped), for: .touchUpInside)
-        
+        mainView.colorFilterButtonStackView.arrangedSubviews
+            .forEach{
+                guard let button = $0 as? UIButton else { return }
+                button.addTarget(self, action: #selector(colorFilterButtonDidTapped), for: .touchUpInside)
+            }
     }
     
-    private func loadSearchedPhoto(_ keyword: String, order: SearchAPIContructor.OrderBy) {
-        networkManager.getSearchPhotos(keyword, page: currentPage, orderBy: order) { value, error in
+    private func loadSearchedPhoto(_ keyword: String, order: SearchAPIContructor.OrderBy, color: String? = nil) {
+        networkManager.getSearchPhotos(keyword, page: currentPage, orderBy: order, color: color) { value, error in
             if let error {
                 print(error) //  임시
                 return
@@ -97,11 +101,24 @@ final class PhotoSearchViewController: ConfigurationViewController {
     
     @objc
     func sortButtonDidTapped(_ sender: UIButton) {
+        guard !photos.isEmpty else { return }
         mainView.collectionView.contentOffset = .zero
         sender.isSelected.toggle()
         let order: SearchAPIContructor.OrderBy = sender.isSelected ? .relevant : .latest
         isInitial = true
         loadSearchedPhoto(searchKeyword ?? "", order: order)
+    }
+    
+    @objc
+    private func colorFilterButtonDidTapped(_ sender: UIButton) {
+        print("왜 스크롤이 상단에 있을 때 왜 업데이트가 안 될까")
+        guard !photos.isEmpty,
+              let searchKeyword,
+              let color = ColorFilter.Color(rawValue: sender.tag) else { return }
+        isInitial = true
+        loadSearchedPhoto(searchKeyword, order: orderBy, color: color.title)
+        print(photos.count, color.title)
+        print(#function)
     }
 }
 

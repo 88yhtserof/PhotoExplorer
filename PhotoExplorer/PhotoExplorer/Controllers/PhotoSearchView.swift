@@ -30,6 +30,7 @@ final class PhotoSearchView: ConfigurationView {
         ColorFilter.Color.allCases
             .forEach { color in
                 let colorFilterButton = TitleToggleButton(selectedTitle: color.title_kr)
+                colorFilterButton.tag = color.rawValue
                 colorFilterButton.imageColor = color.color
                 colorFilterButton.image = UIImage(systemName: "circle.fill")
                 colorFilterButton.backgroundColor = .systemGray6

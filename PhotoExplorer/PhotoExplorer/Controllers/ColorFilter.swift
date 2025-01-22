@@ -11,11 +11,26 @@ struct ColorFilter {
     let title: String
     let color: Color
     
-    enum Color: String, CaseIterable {
+    enum Color: Int, CaseIterable {
         case black, white, yellow, red, purple, green, blue
         
         var title: String {
-            return rawValue
+            switch self {
+            case .black:
+                return "black"
+            case .white:
+                return "white"
+            case .yellow:
+                return "yellow"
+            case .red:
+                return "red"
+            case .purple:
+                return "purple"
+            case .green:
+                return "green"
+            case .blue:
+                return "blue"
+            }
         }
         
         var title_kr: String {
