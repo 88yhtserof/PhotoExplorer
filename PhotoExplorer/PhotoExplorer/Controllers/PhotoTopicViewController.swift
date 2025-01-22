@@ -18,7 +18,7 @@ class PhotoTopicViewController: ConfigurationViewController {
     private var firstPhotoDataList: [Photo] = []
     private var secondPhotoDataList: [Photo] = []
     private var thirdPhotoDataList: [Photo] = []
-    private let topicNetworkManager = TopicsNetworkManager.shared
+    private let networkManager = UnsplashNetworkManager.shared
     
     //MARK: - LifeCycle
     override func loadView() {
@@ -62,9 +62,8 @@ class PhotoTopicViewController: ConfigurationViewController {
     }
     
     private func loadTopicPhotos(_ topic: Section, completion: @escaping () -> Void) {
-        topicNetworkManager.getTopicPhotos(for: topic.query) { [self] value, _ in
-            guard let value else { return }
-            
+        networkManager.callRequest(api: .topic(topic.query),
+                                   type: PhotoResponse.self) { value in
             switch topic {
             case .goldenHour:
                 self.firstPhotoDataList = value
@@ -77,7 +76,10 @@ class PhotoTopicViewController: ConfigurationViewController {
                 self.mainView.thirdCollectionView.reloadData()
             }
             completion()
+        } failureHandler: { error in
+            print("Error:", error)
         }
+
     }
 }
 

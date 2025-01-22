@@ -22,7 +22,7 @@ final class PhotoDetailViewController: ConfigurationViewController {
     let downloadsInfoView = InfoView(title: "다운로드")
     lazy var infoStackView = UIStackView(arrangedSubviews: [sizeInfoView, viewsInfoView, downloadsInfoView])
     
-    private let statisticsManager = StatisticsNetworkManager.shared
+    private let networkManager = UnsplashNetworkManager.shared
     
     private var photo: Photo
     private var statistics: StatisticsResponse?
@@ -43,12 +43,15 @@ final class PhotoDetailViewController: ConfigurationViewController {
     }
     
     private func loadPhotoStatistics(_ photoID: String) {
-        statisticsManager.getStatistics(for: photoID) { [self] value, _ in
-            guard let value else { return }
+        networkManager.callRequest(api: .statistics(photoID: photoID),
+                                   type: StatisticsResponse.self) { value in
             self.statistics = value
             self.viewsInfoView.content = value.views.total.decimal()
             self.downloadsInfoView.content = value.downloads.total.decimal()
+        } failureHandler: { error in
+            print("Error:", error)
         }
+
     }
     
     override func configureView() {

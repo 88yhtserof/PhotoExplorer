@@ -41,13 +41,22 @@ final class PhotoSearchViewController: ConfigurationViewController {
         }
     }
     
+    enum OrderBy: String {
+        case relevant
+        case latest
+        
+        var name: String {
+            return rawValue
+        }
+    }
+    
     lazy var mainView = PhotoSearchView(delegate: self)
     
     override func loadView() {
         view = mainView
     }
     
-    let networkManager = SearchNetworkManager.shared
+    let networkManager = UnsplashNetworkManager.shared
     var photos: [Photo] = []
     var currentPage: Int = 1
     var isSearched: Bool = false
