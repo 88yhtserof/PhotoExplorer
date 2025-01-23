@@ -31,7 +31,6 @@ class LevelViewController: UIViewController {
     }
     
     @objc func okButtonTapped() {
-        UserDefaultsManager.level = segmentedControl.selectedSegmentIndex
         handler?(segmentedControl.selectedSegmentIndex)
         self.navigationController?.popViewController(animated: true)
     }

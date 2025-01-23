@@ -41,6 +41,8 @@ class ProfileViewController: UIViewController {
         }
     }
 
+    let saveButton = UIButton()
+    
     let nicknameButton = UIButton()
     let birthdayButton = UIButton()
     let levelButton = UIButton()
@@ -48,6 +50,8 @@ class ProfileViewController: UIViewController {
     let nicknameLabel = UILabel()
     let birthdayLabel = UILabel()
     let levelLabel = UILabel()
+    
+    var userInfo: UserInfo?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,7 +62,9 @@ class ProfileViewController: UIViewController {
     }
     
     @objc func nickNameObserver(notification: Notification) {
-        nicknameLabel.text = notification.userInfo?[NotificationName.nickname.name] as? String
+        let nickname = notification.userInfo?[NotificationName.nickname.name] as? String
+        nicknameLabel.text = nickname
+        self.userInfo?.nickname = nickname
     }
     
     @objc func birthdayObserver(notification: Notification) {
@@ -148,10 +154,22 @@ class ProfileViewController: UIViewController {
         levelLabel.text = "NO LEVEL"
         levelLabel.textColor = .lightGray
         levelLabel.textAlignment = .right
+        
+        view.addSubview(saveButton)
+        saveButton.snp.makeConstraints { make in
+            make.bottom.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
+            make.height.equalTo(50)
+        }
+        saveButton.layer.cornerRadius = 25
+        saveButton.backgroundColor = .darkGray
+        saveButton.setTitleColor(.white, for: .normal)
+        saveButton.setTitle("저장", for: .normal)
+        saveButton.addTarget(self, action: #selector(saveButtonDidTapped), for: .touchUpInside)
     }
     
     func configureData() {
-        guard let userInfo = UserDefaultsManager.userInfo else { return }
+        self.userInfo = UserDefaultsManager.userInfo
+        guard let userInfo else { return }
         nicknameLabel.text = userInfo.nickname
         birthdayLabel.text = userInfo.birth != nil ? DateFormatterManager.shared.createdAtFormatter.string(from: userInfo.birth!) : nil
         levelLabel.text = userInfo.level != nil ? Level(rawValue: userInfo.level!)?.title : nil
@@ -177,13 +195,21 @@ class ProfileViewController: UIViewController {
         let vc = LevelViewController()
         vc.handler = { level in
             self.levelLabel.text = Level(rawValue: level)?.title
+            self.userInfo?.level = level
         }
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @objc
+    func saveButtonDidTapped() {
+        UserDefaultsManager.userInfo = userInfo
+        showOKAlert(title: "저장", message: "성공적으로 저장되었습니다")
     }
 }
 
 extension ProfileViewController: ProfileViewControllerDelegate {
     func birthDayDataHandler(_ value: Date) {
         birthdayLabel.text = DateFormatterManager.shared.createdAtFormatter.string(from: value)
+        self.userInfo?.birth = value
     }
 }

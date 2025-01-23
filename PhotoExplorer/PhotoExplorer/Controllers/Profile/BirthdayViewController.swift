@@ -32,7 +32,6 @@ class BirthdayViewController: UIViewController {
     }
     
     @objc func okButtonTapped() {
-        UserDefaultsManager.birth = datePicker.date
         delegate?.birthDayDataHandler(datePicker.date)
         self.navigationController?.popViewController(animated: true)
     }
