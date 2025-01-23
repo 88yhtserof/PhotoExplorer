@@ -181,18 +181,18 @@ class ProfileViewController: UIViewController {
     }
     
     @objc func nicknameButtonTapped() {
-        let vc = NicknameViewController()
+        let vc = NicknameViewController(nickname: userInfo?.nickname)
         navigationController?.pushViewController(vc, animated: true)
     }
     
     @objc func birthButtonTapped() {
-        let vc = BirthdayViewController()
+        let vc = BirthdayViewController(birthday: userInfo?.birth ?? Date())
         vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
     }
     
     @objc func levelButtonTapped() {
-        let vc = LevelViewController()
+        let vc = LevelViewController(level: userInfo?.level ?? 0)
         vc.handler = { level in
             self.levelLabel.text = Level(rawValue: level)?.title
             self.userInfo?.level = level

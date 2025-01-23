@@ -13,6 +13,15 @@ class LevelViewController: UIViewController {
     let segmentedControl = UISegmentedControl(items: ["상", "중", "하"])
     var handler: ((Int) -> Void)?
     
+    init(level: Int) {
+        super.init(nibName: nil, bundle: nil)
+        segmentedControl.selectedSegmentIndex = level
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
@@ -27,7 +36,6 @@ class LevelViewController: UIViewController {
             make.centerX.top.equalTo(view.safeAreaLayoutGuide)
             make.width.equalTo(view.safeAreaLayoutGuide).inset(24)
         }
-        segmentedControl.selectedSegmentIndex = 0
     }
     
     @objc func okButtonTapped() {
