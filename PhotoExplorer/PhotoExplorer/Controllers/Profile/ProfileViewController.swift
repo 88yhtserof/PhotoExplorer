@@ -101,6 +101,7 @@ class ProfileViewController: UIViewController {
     }
     
     @objc func okButtonTapped() {
+        UserDefaultsManager.isOnboardingCompleted = false
         switchRootViewController(rootViewController: OnboardingViewController())
     }
 }

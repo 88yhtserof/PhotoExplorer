@@ -30,6 +30,7 @@ class OnboardingViewController: UIViewController {
     
     @objc
     func startButtonDidTapped() {
+        UserDefaultsManager.isOnboardingCompleted = true
         switchRootViewController(rootViewController: ProfileViewController(), isNavigationEmbeded: true)
     }
 }
