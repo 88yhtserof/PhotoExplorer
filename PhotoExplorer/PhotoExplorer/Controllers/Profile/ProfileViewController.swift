@@ -25,6 +25,10 @@ enum Level: Int {
     }
 }
 
+protocol ProfileViewControllerDelegate: AnyObject {
+    func birthDayDataHandler(_ value: Date)
+}
+
 class ProfileViewController: UIViewController {
     
     enum NotificationName: String {
@@ -50,13 +54,7 @@ class ProfileViewController: UIViewController {
         
         configureView()
         configureData()
-        configureNotificationObserver()
-    }
-    
-    func configureNotificationObserver() {
         NotificationCenter.default.addObserver(self, selector: #selector(nickNameObserver), name: NotificationName.nickname.name, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(birthdayObserver), name: NotificationName.birthday.name, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(levelObserver), name: NotificationName.level.name, object: nil)
     }
     
     @objc func nickNameObserver(notification: Notification) {
@@ -171,11 +169,21 @@ class ProfileViewController: UIViewController {
     
     @objc func birthButtonTapped() {
         let vc = BirthdayViewController()
+        vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
     }
     
     @objc func levelButtonTapped() {
         let vc = LevelViewController()
+        vc.handler = { level in
+            self.levelLabel.text = Level(rawValue: level)?.title
+        }
         navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
+extension ProfileViewController: ProfileViewControllerDelegate {
+    func birthDayDataHandler(_ value: Date) {
+        birthdayLabel.text = DateFormatterManager.shared.createdAtFormatter.string(from: value)
     }
 }
