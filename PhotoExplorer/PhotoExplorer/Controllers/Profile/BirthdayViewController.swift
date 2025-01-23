@@ -12,6 +12,7 @@ class BirthdayViewController: UIViewController {
 
     let datePicker = UIDatePicker()
     var selectedDate: Date?
+    private let notificationName = ProfileViewController.NotificationName.birthday.name
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,6 +33,7 @@ class BirthdayViewController: UIViewController {
     
     @objc func okButtonTapped() {
         UserDefaultsManager.birth = datePicker.date
+        NotificationCenter.default.post(name: notificationName, object: nil, userInfo: [notificationName: datePicker.date])
         self.navigationController?.popViewController(animated: true)
     }
 }

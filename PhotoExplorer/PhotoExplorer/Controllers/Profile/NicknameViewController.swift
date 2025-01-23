@@ -11,6 +11,7 @@ import SnapKit
 class NicknameViewController: UIViewController {
 
     let textField = UITextField()
+    private let notificationName = ProfileViewController.NotificationName.nickname.name
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,6 +33,7 @@ class NicknameViewController: UIViewController {
     @objc func okButtonTapped() {
         guard let text = textField.text else { return }
         UserDefaultsManager.nickname = text
+        NotificationCenter.default.post(name: notificationName, object: nil, userInfo: [notificationName: text])
         self.navigationController?.popViewController(animated: true)
     }
 }

@@ -11,6 +11,7 @@ import SnapKit
 class LevelViewController: UIViewController {
 
     let segmentedControl = UISegmentedControl(items: ["상", "중", "하"])
+    private let notificationName = ProfileViewController.NotificationName.level.name
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +32,7 @@ class LevelViewController: UIViewController {
     
     @objc func okButtonTapped() {
         UserDefaultsManager.level = segmentedControl.selectedSegmentIndex
+        NotificationCenter.default.post(name: notificationName, object: nil, userInfo: [notificationName: segmentedControl.selectedSegmentIndex])
         self.navigationController?.popViewController(animated: true)
     }
 }

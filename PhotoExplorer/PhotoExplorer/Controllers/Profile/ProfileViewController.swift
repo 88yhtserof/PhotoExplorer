@@ -26,6 +26,16 @@ enum Level: Int {
 }
 
 class ProfileViewController: UIViewController {
+    
+    enum NotificationName: String {
+        case nickname
+        case birthday
+        case level
+        
+        var name: Notification.Name {
+            return Notification.Name(self.rawValue)
+        }
+    }
 
     let nicknameButton = UIButton()
     let birthdayButton = UIButton()
@@ -37,8 +47,30 @@ class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         configureView()
         configureData()
+        configureNotificationObserver()
+    }
+    
+    func configureNotificationObserver() {
+        NotificationCenter.default.addObserver(self, selector: #selector(nickNameObserver), name: NotificationName.nickname.name, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(birthdayObserver), name: NotificationName.birthday.name, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(levelObserver), name: NotificationName.level.name, object: nil)
+    }
+    
+    @objc func nickNameObserver(notification: Notification) {
+        nicknameLabel.text = notification.userInfo?[NotificationName.nickname.name] as? String
+    }
+    
+    @objc func birthdayObserver(notification: Notification) {
+        guard let date = notification.userInfo?[NotificationName.birthday.name] as? Date else { return }
+        birthdayLabel.text = DateFormatterManager.shared.createdAtFormatter.string(from: date)
+    }
+    
+    @objc func levelObserver(notification: Notification) {
+        guard let level = notification.userInfo?[NotificationName.level.name] as? Int else { return }
+        levelLabel.text = Level(rawValue: level)?.title
     }
     
     func configureView() {
@@ -121,11 +153,9 @@ class ProfileViewController: UIViewController {
     }
     
     func configureData() {
-        print("!")
         guard let userInfo = UserDefaultsManager.userInfo else { return }
-        print("!!")
         nicknameLabel.text = userInfo.nickname
-        birthdayLabel.text = userInfo.birth != nil ? userInfo.birth!.description : nil
+        birthdayLabel.text = userInfo.birth != nil ? DateFormatterManager.shared.createdAtFormatter.string(from: userInfo.birth!) : nil
         levelLabel.text = userInfo.level != nil ? Level(rawValue: userInfo.level!)?.title : nil
     }
     

@@ -57,7 +57,6 @@ enum UserDefaultsManager {
             UserDefaultsManager.userInfo?.nickname
         } set {
             guard let newValue else { return }
-            print(newValue)
             var userInfo = UserDefaultsManager.userInfo ?? UserInfo(nickname: newValue)
             userInfo.nickname = newValue
             UserDefaultsManager.userInfo = userInfo
