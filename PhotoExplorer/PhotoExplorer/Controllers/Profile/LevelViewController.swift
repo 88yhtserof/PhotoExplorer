@@ -17,10 +17,6 @@ class LevelViewController: UIViewController {
         configureView()
     }
     
-    @objc func okButtonTapped() {
-        print(#function)
-    }
-    
     func configureView() {
         navigationItem.title = "레벨"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "확인", style: .plain, target: self, action: #selector(okButtonTapped))
@@ -31,5 +27,10 @@ class LevelViewController: UIViewController {
             make.width.equalTo(view.safeAreaLayoutGuide).inset(24)
         }
         segmentedControl.selectedSegmentIndex = 0
+    }
+    
+    @objc func okButtonTapped() {
+        UserDefaultsManager.level = segmentedControl.selectedSegmentIndex
+        self.navigationController?.popViewController(animated: true)
     }
 }

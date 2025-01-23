@@ -8,6 +8,23 @@
 import UIKit
 import SnapKit
 
+enum Level: Int {
+    case top
+    case middle
+    case bottom
+    
+    var title: String {
+        switch self {
+        case .top:
+            return "상"
+        case .middle:
+            return "중"
+        case .bottom:
+            return "하"
+        }
+    }
+}
+
 class ProfileViewController: UIViewController {
 
     let nicknameButton = UIButton()
@@ -21,6 +38,7 @@ class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
+        configureData()
     }
     
     func configureView() {
@@ -77,7 +95,9 @@ class ProfileViewController: UIViewController {
             make.height.equalTo(50)
         }
 
-        
+        nicknameButton.addTarget(self, action: #selector(nicknameButtonTapped), for: .touchUpInside)
+        birthdayButton.addTarget(self, action: #selector(birthButtonTapped), for: .touchUpInside)
+        levelButton.addTarget(self, action: #selector(levelButtonTapped), for: .touchUpInside)
         
         nicknameButton.setTitleColor(.black, for: .normal)
         birthdayButton.setTitleColor(.black, for: .normal)
@@ -100,8 +120,32 @@ class ProfileViewController: UIViewController {
         levelLabel.textAlignment = .right
     }
     
+    func configureData() {
+        print("!")
+        guard let userInfo = UserDefaultsManager.userInfo else { return }
+        print("!!")
+        nicknameLabel.text = userInfo.nickname
+        birthdayLabel.text = userInfo.birth != nil ? userInfo.birth!.description : nil
+        levelLabel.text = userInfo.level != nil ? Level(rawValue: userInfo.level!)?.title : nil
+    }
+    
     @objc func okButtonTapped() {
         UserDefaultsManager.isOnboardingCompleted = false
         switchRootViewController(rootViewController: OnboardingViewController())
+    }
+    
+    @objc func nicknameButtonTapped() {
+        let vc = NicknameViewController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @objc func birthButtonTapped() {
+        let vc = BirthdayViewController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @objc func levelButtonTapped() {
+        let vc = LevelViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
 }

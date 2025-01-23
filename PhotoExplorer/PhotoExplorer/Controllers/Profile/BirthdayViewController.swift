@@ -11,14 +11,11 @@ import SnapKit
 class BirthdayViewController: UIViewController {
 
     let datePicker = UIDatePicker()
+    var selectedDate: Date?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
-    }
-    
-    @objc func okButtonTapped() {
-        print(#function)
     }
     
     func configureView() {
@@ -31,5 +28,10 @@ class BirthdayViewController: UIViewController {
         }
         datePicker.preferredDatePickerStyle = .wheels
         datePicker.datePickerMode = .date
+    }
+    
+    @objc func okButtonTapped() {
+        UserDefaultsManager.birth = datePicker.date
+        self.navigationController?.popViewController(animated: true)
     }
 }

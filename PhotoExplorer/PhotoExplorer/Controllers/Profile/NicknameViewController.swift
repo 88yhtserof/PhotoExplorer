@@ -17,10 +17,6 @@ class NicknameViewController: UIViewController {
         configureView()
     }
     
-    @objc func okButtonTapped() {
-        print(#function)
-    }
-    
     func configureView() {
         navigationItem.title = "닉네임"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "확인", style: .plain, target: self, action: #selector(okButtonTapped))
@@ -31,5 +27,11 @@ class NicknameViewController: UIViewController {
             make.width.equalTo(view.safeAreaLayoutGuide).inset(24)
         }
         textField.placeholder = "닉네임을 입력해주세요"
+    }
+    
+    @objc func okButtonTapped() {
+        guard let text = textField.text else { return }
+        UserDefaultsManager.nickname = text
+        self.navigationController?.popViewController(animated: true)
     }
 }
