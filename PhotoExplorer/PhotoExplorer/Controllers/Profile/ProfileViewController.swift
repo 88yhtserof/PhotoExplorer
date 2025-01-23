@@ -22,10 +22,6 @@ class ProfileViewController: UIViewController {
         super.viewDidLoad()
         configureView()
     }
-
-    @objc func okButtonTapped() {
-        print(#function)
-    }
     
     func configureView() {
         navigationItem.title = "프로필 화면"
@@ -104,5 +100,7 @@ class ProfileViewController: UIViewController {
         levelLabel.textAlignment = .right
     }
     
- 
+    @objc func okButtonTapped() {
+        switchRootViewController(rootViewController: OnboardingViewController())
+    }
 }
