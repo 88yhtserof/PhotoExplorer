@@ -9,22 +9,27 @@ import UIKit
 import SnapKit
 
 class OnboardingViewController: UIViewController {
-
-    let button = UIButton()
+    
+    let startButton = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .darkGray
-        view.addSubview(button)
-        button.snp.makeConstraints { make in
+        view.addSubview(startButton)
+        startButton.snp.makeConstraints { make in
             make.bottom.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
             make.height.equalTo(50)
         }
-        button.layer.cornerRadius = 25
-        button.backgroundColor = .white
-        button.setTitleColor(.darkGray, for: .normal)
-        button.setTitle("시작하기", for: .normal)
+        startButton.layer.cornerRadius = 25
+        startButton.backgroundColor = .white
+        startButton.setTitleColor(.darkGray, for: .normal)
+        startButton.setTitle("시작하기", for: .normal)
+        startButton.addTarget(self, action: #selector(startButtonDidTapped), for: .touchUpInside)
     }
     
- 
+    
+    @objc
+    func startButtonDidTapped() {
+        switchRootViewController(rootViewController: ProfileViewController(), isNavigationEmbeded: true)
+    }
 }
