@@ -41,22 +41,31 @@ final class PhotoSearchViewController: ConfigurationViewController {
         }
     }
     
+    enum OrderBy: String {
+        case relevant
+        case latest
+        
+        var name: String {
+            return rawValue
+        }
+    }
+    
     lazy var mainView = PhotoSearchView(delegate: self)
     
     override func loadView() {
         view = mainView
     }
     
-    let networkManager = SearchNetworkManager.shared
+    let networkManager = UnsplashNetworkManager.shared
     var photos: [Photo] = []
     var currentPage: Int = 1
     var isSearched: Bool = false
     var currentSectionValue: [Int] = [1, 0, 0]
     var searchKeyword: String?
-    var orderBy: SearchAPIContructor.OrderBy = .relevant
+    var orderBy: OrderBy = .relevant
     var totalPage: Int?
     var isInitial: Bool = false
-    var color: String?
+    var color: ColorFilter.Color?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,45 +82,50 @@ final class PhotoSearchViewController: ConfigurationViewController {
             }
     }
     
-    private func loadSearchedPhoto(_ keyword: String, order: SearchAPIContructor.OrderBy, color: String? = nil) {
-        networkManager.getSearchPhotos(keyword, page: currentPage, orderBy: order, color: color) { value, error in
-            if let error {
-                print(error) //  임시
-                return
-            } else if let value {
-                self.currentPage += 1
-                self.totalPage = value.total_pages
-                self.currentSectionValue[0] = 0
-                if self.isInitial {
-                    self.currentPage = 1
-                    self.photos = []
-                }
-                
-                if value.results.count < 1 {
-                    self.currentSectionValue[1] = 1
-                    self.currentSectionValue[2] = 0
-                } else {
-                    self.photos.append(contentsOf: value.results)
-                    self.currentSectionValue[1] = 0
-                    self.currentSectionValue[2] = self.photos.count
-                }
-                self.mainView.collectionView.reloadData()
-            }
+    private func loadSearchedPhoto(_ keyword: String, order: OrderBy = .relevant, color: ColorFilter.Color? = nil) {
+        let parameters = PhotoSearchRequest(query: keyword, page: currentPage, order_by: order.name, color: color?.title)
+        networkManager
+            .callRequest(api: .search(parameters),
+                         type: PhotoSearchResponse.self) { photo in
+            self.configureSectionData(photo)
+        } failureHandler: { error in
+            self.showOKAlert(title: "네트워크 오류", message: error.description_en)
         }
+
+    }
+    
+    private func configureSectionData(_ value: PhotoSearchResponse) {
+        currentPage += 1
+        totalPage = value.total_pages
+        currentSectionValue[0] = 0
+        if isInitial {
+            currentPage = 1
+            photos = []
+        }
+        
+        if value.results.count < 1 {
+            currentSectionValue[1] = 1
+            currentSectionValue[2] = 0
+        } else {
+            photos.append(contentsOf: value.results)
+            currentSectionValue[1] = 0
+            currentSectionValue[2] = self.photos.count
+        }
+        mainView.collectionView.reloadData()
     }
     
     @objc
     func sortButtonDidTapped(_ sender: UIButton) {
         guard !photos.isEmpty else { return }
         mainView.collectionView.contentOffset = .zero
-        let order: SearchAPIContructor.OrderBy = sender.isSelected ? .relevant : .latest
+        let order: OrderBy = sender.isSelected ? .relevant : .latest
         isInitial = true
         loadSearchedPhoto(searchKeyword ?? "", order: order, color: color)
     }
     
     @objc
     private func colorFilterButtonDidTapped(_ sender: UIButton) {
-        self.color = ColorFilter.Color(rawValue: sender.tag)?.title
+        self.color = ColorFilter.Color(rawValue: sender.tag)
         mainView.colorFilterButtonStackView.arrangedSubviews
             .compactMap{ $0 as? UIButton }
             .filter{ $0 != sender && $0.isSelected == true }
@@ -137,7 +151,7 @@ extension PhotoSearchViewController: UISearchBarDelegate {
         }
         isInitial = true
         searchKeyword = keyword
-        let order: SearchAPIContructor.OrderBy = mainView.sortButton.isSelected ? .relevant : .latest
+        let order: OrderBy = mainView.sortButton.isSelected ? .relevant : .latest
         loadSearchedPhoto(keyword, order: order, color: self.color)
         view.endEditing(true)
     }
