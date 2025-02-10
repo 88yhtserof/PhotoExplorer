@@ -24,13 +24,13 @@ final class PhotoDetailViewController: ConfigurationViewController {
     
     private let networkManager = UnsplashNetworkManager.shared
     
-    private var photo: Photo
+//    private var photo: Photo
     private var statistics: StatisticsResponse?
     
-    private let viewModel = PhotoDetailViewModel()
+    let viewModel = PhotoDetailViewModel()
     
-    init(photo: Photo) {
-        self.photo = photo
+    init() {
+//        self.photo = photo
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -41,7 +41,44 @@ final class PhotoDetailViewController: ConfigurationViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        loadPhotoStatistics(photo.id)
+        
+        bind()
+//        loadPhotoStatistics(photo.id)
+    }
+    
+    private func bind() {
+        // 이전 화면에서 데이터를 전달하기 때문에, 아래 output 로직의 클로저가 구성되기도 전에 값이 send되어버려서 lazyBind를 할 경우 호출되지 않는다.
+        viewModel.output.userInfoImageURL.bind { [weak self] url in
+            print("Output userInfoImageURL bind")
+            self?.userInfoView.imageURL = url
+        }
+        
+        viewModel.output.userInfoName.bind { [weak self] name in
+            print("Output userInfoName bind")
+            self?.userInfoView.name = name
+        }
+        
+        viewModel.output.userInfoCreatedAt.bind { [weak self] createdAt in
+            print("Output userInfoCreatedAtL bind")
+            self?.userInfoView.createdAt = createdAt
+        }
+        
+        viewModel.output.photoLoadOption.bind { [weak self] loadOption in
+            print("Output photoLoadOption bind")
+            guard let self, let (url, size) = loadOption else { return }
+            imageView.kf.setImage(with: url,
+                                  options: [.processor(DownsamplingImageProcessor(size: size))])
+            
+            imageView.snp.makeConstraints { make in
+                make.height.equalTo(size.height)
+            }
+        }
+        
+        viewModel.output.photoInfoSize.bind { [weak self] info in
+            print("Output photoInfoSize bind")
+            guard let self, let info else { return }
+            self.sizeInfoView.content = info
+        }
     }
     
     private func loadPhotoStatistics(_ photoID: String) {
@@ -58,32 +95,32 @@ final class PhotoDetailViewController: ConfigurationViewController {
     
     override func configureView() {
         
-        let userInfoImageURL = URL(string: photo.user.profile_image.small)
-        userInfoView.imageURL = userInfoImageURL
-        userInfoView.name = photo.user.name
-        let createdAtString = DateFormatterManager.shared.String(from: photo.created_at, to: .createdAt)
-        userInfoView.createdAt = String(format: "%@ 게시됨", createdAtString)
+//        let userInfoImageURL = URL(string: photo.user.profile_image.small)
+//        userInfoView.imageURL = userInfoImageURL
+//        userInfoView.name = photo.user.name
+//        let createdAtString = DateFormatterManager.shared.String(from: photo.created_at, to: .createdAt)
+//        userInfoView.createdAt = String(format: "%@ 게시됨", createdAtString)
         infoStackView.axis = .vertical
         infoStackView.spacing = 8
         
         infoBlockView.contentView = infoStackView
         
-        if let imageURL = URL(string: photo.urls.raw) {
-            let width = view.frame.width
-            let imageHeight = photo.height * width / photo.width
-            let size = CGSize(width: width, height: imageHeight)
-            imageView.kf.setImage(with: imageURL,
-                                  options: [.processor(DownsamplingImageProcessor(size: size))])
-            
-            imageView.snp.makeConstraints { make in
-                make.height.equalTo(imageHeight)
-            }
-        }
+//        if let imageURL = URL(string: photo.urls.raw) {
+//            let width = view.frame.width
+//            let imageHeight = photo.height * width / photo.width
+//            let size = CGSize(width: width, height: imageHeight)
+//            imageView.kf.setImage(with: imageURL,
+//                                  options: [.processor(DownsamplingImageProcessor(size: size))])
+//            
+//            imageView.snp.makeConstraints { make in
+//                make.height.equalTo(imageHeight)
+//            }
+//        }
         imageView.backgroundColor = .gray
         imageView.tintColor = .white
         imageView.contentMode = .scaleAspectFill
         
-        sizeInfoView.content = String(format: "%.f x %.f", photo.height, photo.width)
+//        sizeInfoView.content = String(format: "%.f x %.f", photo.height, photo.width)
     }
     
     override func configureHierarchy() {

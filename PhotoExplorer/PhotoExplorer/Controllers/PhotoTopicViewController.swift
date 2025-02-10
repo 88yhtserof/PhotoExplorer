@@ -147,7 +147,7 @@ extension PhotoTopicViewController: UICollectionViewDelegate, UICollectionViewDa
             photo = thirdPhotoDataList[indexPath.item]
         }
         
-        let photoDetailVC = PhotoDetailViewController(photo: photo)
+        let photoDetailVC = PhotoDetailViewController()
         self.navigationController?.pushViewController(photoDetailVC, animated: true)
     }
 }
