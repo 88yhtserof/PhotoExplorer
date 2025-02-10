@@ -13,9 +13,9 @@ final class PhotoDetailViewModel: BaseViewModel {
     private(set) var output: Output!
     
     struct Input {
-        
         let selectedPhotoToPreviousVC: Observable<Photo?> = Observable(nil)
         let adjustPhotoSize: Observable<CGFloat?> = Observable(nil)
+        let viewDidLoad: Observable<Void> = Observable(())
     }
     
     struct Output {
@@ -24,11 +24,17 @@ final class PhotoDetailViewModel: BaseViewModel {
         let userInfoCreatedAt: Observable<String?> = Observable(nil)
         
         let photoLoadOption: Observable<(URL, CGSize)?> = Observable(nil)
-        
         let photoInfoSize: Observable<String?> = Observable(nil)
+        
+        let statisticsResultDescription: Observable<(String, String)?> = Observable(nil)
+        let failureLoadPhotoStatistics: Observable<UnsplashError?> = Observable(nil)
     }
     
+    private let networkManager = UnsplashNetworkManager.shared
+    
     init() {
+        print("PhotoDetailViewModel init")
+        
         input = Input()
         output = Output()
         
@@ -36,7 +42,7 @@ final class PhotoDetailViewModel: BaseViewModel {
     }
     
     deinit {
-        
+        print("PhotoDetailViewModel deinit")
     }
     
     func transform() {
@@ -48,11 +54,19 @@ final class PhotoDetailViewModel: BaseViewModel {
         }
         
         input.adjustPhotoSize.lazyBind { [weak self] width in
+            print("Input adjustPhotoSize bind")
             guard let self,
                   let width,
                   let photo = self.input.selectedPhotoToPreviousVC.value else { return }
             
             self.configurePhoto(photo, width: width)
+        }
+        
+        input.viewDidLoad.lazyBind { [weak self] _ in
+            print("Input viewDidLoad bind")
+            guard let self,
+                  let photo = self.input.selectedPhotoToPreviousVC.value else { return }
+            self.loadPhotoStatistics(photo.id)
         }
     }
 }
@@ -86,5 +100,20 @@ private extension PhotoDetailViewModel {
     func configurePhotoInfo(_ photo: Photo) {
         let sizeDescription = String(format: "%.f x %.f", photo.height, photo.width)
         output.photoInfoSize.send(sizeDescription)
+    }
+    
+    func loadPhotoStatistics(_ photoID: String) {
+        networkManager.callRequest(api: .statistics(photoID: photoID),
+                                   type: StatisticsResponse.self) { value in
+            guard let viewsTotal = value.views.total.decimal(),
+                  let downloadsTotal = value.downloads.total.decimal() else {
+                print("Failed to get formatted statistics string")
+                return
+            }
+            self.output.statisticsResultDescription.send((viewsTotal, downloadsTotal))
+        } failureHandler: { error in
+            self.output.failureLoadPhotoStatistics.send(error)
+        }
+
     }
 }

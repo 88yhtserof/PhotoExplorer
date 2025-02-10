@@ -22,28 +22,13 @@ final class PhotoDetailViewController: ConfigurationViewController {
     let downloadsInfoView = InfoView(title: "다운로드")
     lazy var infoStackView = UIStackView(arrangedSubviews: [sizeInfoView, viewsInfoView, downloadsInfoView])
     
-    private let networkManager = UnsplashNetworkManager.shared
-    
-//    private var photo: Photo
-    private var statistics: StatisticsResponse?
-    
     let viewModel = PhotoDetailViewModel()
-    
-    init() {
-//        self.photo = photo
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         
         bind()
-//        loadPhotoStatistics(photo.id)
     }
     
     private func bind() {
@@ -59,11 +44,11 @@ final class PhotoDetailViewController: ConfigurationViewController {
         }
         
         viewModel.output.userInfoCreatedAt.bind { [weak self] createdAt in
-            print("Output userInfoCreatedAtL bind")
+            print("Output userInfoCreatedAt bind")
             self?.userInfoView.createdAt = createdAt
         }
         
-        viewModel.output.photoLoadOption.bind { [weak self] loadOption in
+        viewModel.output.photoLoadOption.lazyBind { [weak self] loadOption in
             print("Output photoLoadOption bind")
             guard let self, let (url, size) = loadOption else { return }
             imageView.kf.setImage(with: url,
@@ -80,19 +65,23 @@ final class PhotoDetailViewController: ConfigurationViewController {
             self.sizeInfoView.content = info
         }
         
-        viewModel.input.adjustPhotoSize.send(view.frame.width)
-    }
-    
-    private func loadPhotoStatistics(_ photoID: String) {
-        networkManager.callRequest(api: .statistics(photoID: photoID),
-                                   type: StatisticsResponse.self) { value in
-            self.statistics = value
-            self.viewsInfoView.content = value.views.total.decimal()
-            self.downloadsInfoView.content = value.downloads.total.decimal()
-        } failureHandler: { error in
+        viewModel.output.statisticsResultDescription.lazyBind { [weak self] result in
+            print("Output statisticsResultDescription bind")
+            guard let self,
+                  let viewsTotal = result?.0,
+                  let downloadsTotal = result?.1 else { return }
+            self.viewsInfoView.content = viewsTotal
+            self.downloadsInfoView.content = downloadsTotal
+        }
+        
+        viewModel.output.failureLoadPhotoStatistics.lazyBind {[weak self] error in
+            print("Output failureLoadPhotoStatistics bind")
+            guard let self, let error else { return }
             self.showOKAlert(title: "네트워크 오류", message: error.description_en)
         }
-
+        
+        viewModel.input.viewDidLoad.send()
+        viewModel.input.adjustPhotoSize.send(view.frame.width)
     }
     
     override func configureView() {
