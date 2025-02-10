@@ -22,66 +22,76 @@ final class PhotoDetailViewController: ConfigurationViewController {
     let downloadsInfoView = InfoView(title: "다운로드")
     lazy var infoStackView = UIStackView(arrangedSubviews: [sizeInfoView, viewsInfoView, downloadsInfoView])
     
-    private let networkManager = UnsplashNetworkManager.shared
-    
-    private var photo: Photo
-    private var statistics: StatisticsResponse?
-    
-    init(photo: Photo) {
-        self.photo = photo
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    let viewModel = PhotoDetailViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        loadPhotoStatistics(photo.id)
+        
+        bind()
     }
     
-    private func loadPhotoStatistics(_ photoID: String) {
-        networkManager.callRequest(api: .statistics(photoID: photoID),
-                                   type: StatisticsResponse.self) { value in
-            self.statistics = value
-            self.viewsInfoView.content = value.views.total.decimal()
-            self.downloadsInfoView.content = value.downloads.total.decimal()
-        } failureHandler: { error in
+    private func bind() {
+        // 이전 화면에서 데이터를 전달하기 때문에, 아래 output 로직의 클로저가 구성되기도 전에 값이 send되어버려서 lazyBind를 할 경우 호출되지 않는다.
+        viewModel.output.userInfoImageURL.bind { [weak self] url in
+            print("Output userInfoImageURL bind")
+            self?.userInfoView.imageURL = url
+        }
+        
+        viewModel.output.userInfoName.bind { [weak self] name in
+            print("Output userInfoName bind")
+            self?.userInfoView.name = name
+        }
+        
+        viewModel.output.userInfoCreatedAt.bind { [weak self] createdAt in
+            print("Output userInfoCreatedAt bind")
+            self?.userInfoView.createdAt = createdAt
+        }
+        
+        viewModel.output.photoLoadOption.lazyBind { [weak self] loadOption in
+            print("Output photoLoadOption bind")
+            guard let self, let (url, size) = loadOption else { return }
+            imageView.kf.setImage(with: url,
+                                  options: [.processor(DownsamplingImageProcessor(size: size))])
+            
+            imageView.snp.makeConstraints { make in
+                make.height.equalTo(size.height)
+            }
+        }
+        
+        viewModel.output.photoInfoSize.bind { [weak self] info in
+            print("Output photoInfoSize bind")
+            guard let self, let info else { return }
+            self.sizeInfoView.content = info
+        }
+        
+        viewModel.output.statisticsResultDescription.lazyBind { [weak self] result in
+            print("Output statisticsResultDescription bind")
+            guard let self,
+                  let viewsTotal = result?.0,
+                  let downloadsTotal = result?.1 else { return }
+            self.viewsInfoView.content = viewsTotal
+            self.downloadsInfoView.content = downloadsTotal
+        }
+        
+        viewModel.output.failureLoadPhotoStatistics.lazyBind {[weak self] error in
+            print("Output failureLoadPhotoStatistics bind")
+            guard let self, let error else { return }
             self.showOKAlert(title: "네트워크 오류", message: error.description_en)
         }
-
+        
+        viewModel.input.viewDidLoad.send()
+        viewModel.input.adjustPhotoSize.send(view.frame.width)
     }
     
     override func configureView() {
-        
-        let userInfoImageURL = URL(string: photo.user.profile_image.small)
-        userInfoView.imageURL = userInfoImageURL
-        userInfoView.name = photo.user.name
-        let createdAtString = DateFormatterManager.shared.String(from: photo.created_at, to: .createdAt)
-        userInfoView.createdAt = String(format: "%@ 게시됨", createdAtString)
         infoStackView.axis = .vertical
         infoStackView.spacing = 8
         
         infoBlockView.contentView = infoStackView
-        
-        if let imageURL = URL(string: photo.urls.raw) {
-            let width = view.frame.width
-            let imageHeight = photo.height * width / photo.width
-            let size = CGSize(width: width, height: imageHeight)
-            imageView.kf.setImage(with: imageURL,
-                                  options: [.processor(DownsamplingImageProcessor(size: size))])
-            
-            imageView.snp.makeConstraints { make in
-                make.height.equalTo(imageHeight)
-            }
-        }
         imageView.backgroundColor = .gray
         imageView.tintColor = .white
         imageView.contentMode = .scaleAspectFill
-        
-        sizeInfoView.content = String(format: "%.f x %.f", photo.height, photo.width)
     }
     
     override func configureHierarchy() {
