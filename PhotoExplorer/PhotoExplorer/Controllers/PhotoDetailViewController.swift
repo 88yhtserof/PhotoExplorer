@@ -79,6 +79,8 @@ final class PhotoDetailViewController: ConfigurationViewController {
             guard let self, let info else { return }
             self.sizeInfoView.content = info
         }
+        
+        viewModel.input.adjustPhotoSize.send(view.frame.width)
     }
     
     private func loadPhotoStatistics(_ photoID: String) {
@@ -94,33 +96,13 @@ final class PhotoDetailViewController: ConfigurationViewController {
     }
     
     override func configureView() {
-        
-//        let userInfoImageURL = URL(string: photo.user.profile_image.small)
-//        userInfoView.imageURL = userInfoImageURL
-//        userInfoView.name = photo.user.name
-//        let createdAtString = DateFormatterManager.shared.String(from: photo.created_at, to: .createdAt)
-//        userInfoView.createdAt = String(format: "%@ 게시됨", createdAtString)
         infoStackView.axis = .vertical
         infoStackView.spacing = 8
         
         infoBlockView.contentView = infoStackView
-        
-//        if let imageURL = URL(string: photo.urls.raw) {
-//            let width = view.frame.width
-//            let imageHeight = photo.height * width / photo.width
-//            let size = CGSize(width: width, height: imageHeight)
-//            imageView.kf.setImage(with: imageURL,
-//                                  options: [.processor(DownsamplingImageProcessor(size: size))])
-//            
-//            imageView.snp.makeConstraints { make in
-//                make.height.equalTo(imageHeight)
-//            }
-//        }
         imageView.backgroundColor = .gray
         imageView.tintColor = .white
         imageView.contentMode = .scaleAspectFill
-        
-//        sizeInfoView.content = String(format: "%.f x %.f", photo.height, photo.width)
     }
     
     override func configureHierarchy() {

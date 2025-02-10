@@ -15,6 +15,7 @@ final class PhotoDetailViewModel: BaseViewModel {
     struct Input {
         
         let selectedPhotoToPreviousVC: Observable<Photo?> = Observable(nil)
+        let adjustPhotoSize: Observable<CGFloat?> = Observable(nil)
     }
     
     struct Output {
@@ -42,9 +43,16 @@ final class PhotoDetailViewModel: BaseViewModel {
         input.selectedPhotoToPreviousVC.lazyBind { [weak self] photo in
             print("Input selectedPhotoToPreviousVC bind")
             guard let self, let photo else { return }
-            configureUserInfo(photo)
-            configurePhoto(photo)
-            configurePhotoInfo(photo)
+            self.configureUserInfo(photo)
+            self.configurePhotoInfo(photo)
+        }
+        
+        input.adjustPhotoSize.lazyBind { [weak self] width in
+            guard let self,
+                  let width,
+                  let photo = self.input.selectedPhotoToPreviousVC.value else { return }
+            
+            self.configurePhoto(photo, width: width)
         }
     }
 }
@@ -62,12 +70,12 @@ private extension PhotoDetailViewModel {
         output.userInfoCreatedAt.send(createdAtDescription)
     }
     
-    func configurePhoto(_ photo: Photo) {
+    func configurePhoto(_ photo: Photo, width: CGFloat) {
         guard let url = URL(string: photo.urls.raw) else {
             print("Failed to create URL")
             return
         }
-        let width = photo.width
+        
         let height = photo.height * width / photo.width
         let size = CGSize(width: width, height: height)
         
