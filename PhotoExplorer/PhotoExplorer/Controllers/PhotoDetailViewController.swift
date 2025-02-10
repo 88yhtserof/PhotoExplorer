@@ -27,6 +27,8 @@ final class PhotoDetailViewController: ConfigurationViewController {
     private var photo: Photo
     private var statistics: StatisticsResponse?
     
+    private let viewModel = PhotoDetailViewModel()
+    
     init(photo: Photo) {
         self.photo = photo
         super.init(nibName: nil, bundle: nil)
