@@ -13,14 +13,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let scene = (scene as? UIWindowScene) else { return }
-        var rootViewController: UIViewController!
+//        var rootViewController: UIViewController!
         
-        if UserDefaultsManager.isOnboardingCompleted {
-            rootViewController = UINavigationController(rootViewController: ProfileViewController())
-        } else {
-            rootViewController = OnboardingViewController()
-        }
-        
+//        if UserDefaultsManager.isOnboardingCompleted {
+//            rootViewController = UINavigationController(rootViewController: ProfileViewController())
+//        } else {
+//            rootViewController = OnboardingViewController()
+//        }
+        var rootViewController = MainTabBarViewController()
         window = UIWindow(windowScene: scene)
         window?.rootViewController = rootViewController
         window?.makeKeyAndVisible()
