@@ -64,6 +64,9 @@ class ProfileViewController: UIViewController {
     @objc func nickNameObserver(notification: Notification) {
         let nickname = notification.userInfo?[NotificationName.nickname.name] as? String
         nicknameLabel.text = nickname
+        if self.userInfo == nil {
+            self.userInfo = UserInfo()
+        }
         self.userInfo?.nickname = nickname
     }
     
@@ -79,7 +82,7 @@ class ProfileViewController: UIViewController {
     
     func configureView() {
         navigationItem.title = "프로필 화면"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "탈퇴하기", style: .plain, target: self, action: #selector(okButtonTapped))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "탈퇴하기", style: .plain, target: self, action: #selector(leaveButtonTapped))
         view.backgroundColor = .white
         
         view.addSubview(nicknameButton)
@@ -175,8 +178,9 @@ class ProfileViewController: UIViewController {
         levelLabel.text = userInfo.level != nil ? Level(rawValue: userInfo.level!)?.title : nil
     }
     
-    @objc func okButtonTapped() {
+    @objc func leaveButtonTapped() {
         UserDefaultsManager.isOnboardingCompleted = false
+        UserDefaultsManager.userInfo = nil
         switchRootViewController(rootViewController: OnboardingViewController())
     }
     
@@ -195,6 +199,9 @@ class ProfileViewController: UIViewController {
         let vc = LevelViewController(level: userInfo?.level ?? 0)
         vc.handler = { level in
             self.levelLabel.text = Level(rawValue: level)?.title
+            if self.userInfo == nil {
+                self.userInfo = UserInfo()
+            }
             self.userInfo?.level = level
         }
         navigationController?.pushViewController(vc, animated: true)
@@ -210,6 +217,9 @@ class ProfileViewController: UIViewController {
 extension ProfileViewController: ProfileViewControllerDelegate {
     func birthDayDataHandler(_ value: Date) {
         birthdayLabel.text = DateFormatterManager.shared.createdAtFormatter.string(from: value)
+        if self.userInfo == nil {
+            self.userInfo = UserInfo()
+        }
         self.userInfo?.birth = value
     }
 }
